@@ -8,7 +8,7 @@ import {
   Icon,
   Text,
 } from '@chakra-ui/react';
-import { TableStyles } from '../contants';
+import { DAY, HOUR, MINUTE, TableStyles } from '../contants';
 import { IoMdTrash } from 'react-icons/io';
 import {
   ImCheckboxChecked,
@@ -16,41 +16,34 @@ import {
   ImPause,
   ImPlay2,
 } from 'react-icons/im';
+import { Task } from '../types/Task.type';
+import { useDispatch } from 'react-redux';
+import { deleteTask } from '../redux/feature/task.actions';
 
-interface TaskProps {}
-export const Task: React.FC<TaskProps> = (props) => {
-  const task = {
-    id: 0,
-    accumulatedTime: 0,
-    completed: false,
-    description: 'type to edit',
-    isActive: false,
-    name: 'type to edit',
-    notes: 'type to edit',
-    originalEstimate: '0',
-    priority: 1,
-    relatedFeature: 'type to edit',
-    startedDate: new Date(Date.now()),
-  };
+interface TaskItemProps {
+  task: Task;
+}
+export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
+  const dispatch = useDispatch();
 
-  const getTime = (t: number) => {
-    const days = Math.floor(t / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((t % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((t % (1000 * 60 * 60)) / (1000 * 60));
+  // formatTime :: number -> string
+  const formatTime = ({ accumulatedTime: t }: Task) => {
+    const days = Math.floor(t / DAY);
+    const hours = Math.floor((t % DAY) / HOUR);
+    const minutes = Math.floor((t % HOUR) / MINUTE);
     return `${days}d : ${hours}h : ${minutes}m`;
   };
 
   const toggleActive = () => null;
   const updateCurrentTask = () => null;
-  const toggleComplete = () => null;
-  const removeTask = () => null;
 
   return (
     <>
       <Flex
         p="1rem"
-        border="1px solid steelblue"
+        border="1px solid transparent"
         onClick={updateCurrentTask}
+        _hover={{ border: '1px solid steelblue' }}
         // style={isCurrentTask() ? { border: '.1rem solid steelblue' } : {}}
       >
         <Box
@@ -75,14 +68,14 @@ export const Task: React.FC<TaskProps> = (props) => {
           width={TableStyles.col2}
         >
           <Text as="p" fontSize="xl" border="1px dashed yellow">
-            {getTime(task.accumulatedTime)}
+            {formatTime(task)}
           </Text>
           {!task.completed && (
             <>
-              {!task.isActive ? (
-                <Icon as={ImPlay2} boxSize={6} onClick={toggleActive} />
-              ) : (
+              {task.isActive ? (
                 <Icon as={ImPause} boxSize={6} onClick={toggleActive} />
+              ) : (
+                <Icon as={ImPlay2} boxSize={6} onClick={toggleActive} />
               )}
             </>
           )}
@@ -94,8 +87,16 @@ export const Task: React.FC<TaskProps> = (props) => {
           justifyContent="space-around"
           alignItems="center"
         >
-          <Icon as={ImCheckboxUnchecked} boxSize={5} />
-          <Icon as={IoMdTrash} boxSize={7} onClick={removeTask} />
+          {task.completed ? (
+            <Icon as={ImCheckboxChecked} boxSize={5} />
+          ) : (
+            <Icon as={ImCheckboxUnchecked} boxSize={5} />
+          )}
+          <Icon
+            as={IoMdTrash}
+            boxSize={7}
+            onClick={() => dispatch(deleteTask(task))}
+          />
         </Flex>
       </Flex>
     </>
