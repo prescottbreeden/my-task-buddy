@@ -3,10 +3,11 @@ import {
   Box,
   Flex,
   Heading,
-  Switch,
+  IconButton,
   Text,
   useColorMode,
 } from '@chakra-ui/react';
+import { SunIcon, MoonIcon } from '@chakra-ui/icons';
 
 interface HeaderProps {}
 export const Header: React.FC<HeaderProps> = (props) => {
@@ -21,9 +22,16 @@ export const Header: React.FC<HeaderProps> = (props) => {
             Munchin' on a Cheesecake!
           </Text>
         </Box>
-        <Switch onClick={toggleColorMode}>
-          Toggle {colorMode === 'light' ? 'Dark' : 'Light'} Mode
-        </Switch>
+        <IconButton
+          bg="transparent"
+          border="1px solid #333"
+          borderRadius="5px"
+          padding=".6rem"
+          aria-label="Color Mode"
+          _hover={{ cursor: 'pointer' }}
+          as={colorMode === 'light' ? SunIcon : MoonIcon}
+          onClick={toggleColorMode}
+        />
       </Flex>
     </>
   );

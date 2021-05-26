@@ -6,7 +6,13 @@ function App() {
   return (
     <>
       <Header />
-      <Flex height="calc(100vh - 8rem)" border="1px solid yellow" color="grey">
+      <Flex
+        flexDir="column"
+        height="calc(100vh - 8rem)"
+        border="1px solid yellow"
+        color="grey"
+        fontFamily="Cutive Mono"
+      >
         <Tasks />
       </Flex>
     </>
