@@ -18,13 +18,18 @@ import {
 } from 'react-icons/im';
 import { Task } from '../types/Task.type';
 import { useDispatch } from 'react-redux';
-import { deleteTask } from '../redux/feature/task.actions';
+import { TASKS } from '../redux/_keys';
+import { pipe } from 'fp-tools';
+import { action } from '../utilities';
+import { ReduxOperation } from '../types';
 
 interface TaskItemProps {
   task: Task;
 }
 export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
-  const dispatch = useDispatch();
+  const dHook = useDispatch();
+  const dispatch = (operation: ReduxOperation) =>
+    pipe(action(TASKS, operation), dHook);
 
   // formatTime :: number -> string
   const formatTime = ({ accumulatedTime: t }: Task) => {
@@ -95,7 +100,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
           <Icon
             as={IoMdTrash}
             boxSize={7}
-            onClick={() => dispatch(deleteTask(task))}
+            onClick={() => dispatch('[DELETE]')(task)}
           />
         </Flex>
       </Flex>

@@ -1,18 +1,22 @@
 import React from 'react';
 import { Box, Divider, Flex, Heading, Icon } from '@chakra-ui/react';
-import { TaskItem } from './Task.component';
-import { TableStyles } from '../contants';
 import { MdLibraryAdd } from 'react-icons/md';
-import { Task } from '../types/Task.type';
-import { useDispatch, useSelector } from 'react-redux';
+import { ReduxOperation } from '../types';
 import { TASKS } from '../redux/_keys';
-import { prop } from 'fp-tools';
-import { addNewTask } from '../redux/feature/task.actions';
+import { TableStyles } from '../contants';
+import { Task } from '../types/Task.type';
+import { TaskItem } from './Task.component';
+import { action } from '../utilities';
+import { pipe, prop } from 'fp-tools';
+import { useDispatch, useSelector } from 'react-redux';
 
 interface TasksProps {}
 export const Tasks: React.FC<TasksProps> = () => {
-  const dispath = useDispatch();
+  const dHook = useDispatch();
   const tasks: Task[] = useSelector(prop(TASKS));
+
+  const dispatch = (operation: ReduxOperation) =>
+    pipe(action(TASKS, operation), dHook);
   return (
     <>
       <Flex width="100%">
@@ -53,7 +57,7 @@ export const Tasks: React.FC<TasksProps> = () => {
             as={MdLibraryAdd}
             margin="1rem"
             boxSize={9}
-            onClick={() => dispath(addNewTask)}
+            onClick={dispatch('[ADD]')}
           />
         </Box>
         <Divider orientation="vertical" />
