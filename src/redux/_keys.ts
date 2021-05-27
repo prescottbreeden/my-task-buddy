@@ -1,2 +1,2 @@
 // feature name
-export const TASKS = '[Tasks]';
+export const TASK = '[Task]';
