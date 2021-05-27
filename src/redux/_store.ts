@@ -1,10 +1,11 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { emptyTask } from '../types/Task.type';
-import { createCollectionReducer } from '../utilities';
-import { TASK } from './_keys';
+import { createCollectionReducer, createReducer } from '../utilities';
+import { TASK, USER } from './_keys';
 
 const rootReducer = combineReducers({
   [TASK]: createCollectionReducer(TASK, emptyTask),
+  [USER]: createReducer(USER, null),
 });
 
 const featureMiddleware: any = [];

@@ -1,6 +1,5 @@
-import { cond, join, path } from 'ramda';
+import { append, cond, join, path } from 'ramda';
 import { equals, pipe, prop } from 'fp-tools';
-import { append } from 'ramda';
 import { curry } from 'fp-tools';
 import { ReduxOperation } from './types';
 import { DuxOp } from './types/ReduxOperation.enum';
@@ -49,6 +48,16 @@ export const createCollectionReducer = (key: string, empty: any) => (
     [actionMatches([key, DuxOp.delete]), reducerCrud.delete],
     [actionMatches([key, DuxOp.set]), reducerCrud.set],
     [actionMatches([key, DuxOp.update]), reducerCrud.update],
+    [() => true, prop('state')],
+  ])({ action, state });
+};
+
+export const createReducer = (key: string, initialState: any) => (
+  state = initialState,
+  action: any
+) => {
+  return cond([
+    [actionMatches([key, DuxOp.set]), reducerCrud.set],
     [() => true, prop('state')],
   ])({ action, state });
 };
