@@ -21,7 +21,7 @@ import { Footer } from './Footer.component';
 interface SettingsProps {}
 export const Settings: React.FC<SettingsProps> = () => {
   // [dependencies]
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose, onToggle } = useDisclosure();
   const settingsBtn = React.useRef(null);
 
   // [component]
@@ -30,6 +30,7 @@ export const Settings: React.FC<SettingsProps> = () => {
   return (
     <>
       <IconButton
+        tabIndex={0}
         _hover={{ cursor: 'pointer' }}
         aria-label="Color Mode"
         as={SettingsIcon}
@@ -37,6 +38,7 @@ export const Settings: React.FC<SettingsProps> = () => {
         border="1px solid #333"
         borderRadius="5px"
         onClick={onOpen}
+        onKeyPress={({ key }) => key === 'Enter' && onToggle()}
         padding=".6rem"
         ref={settingsBtn}
       />

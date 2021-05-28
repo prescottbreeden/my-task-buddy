@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Divider, Flex, Heading, Icon } from '@chakra-ui/react';
+import { Box, Divider, Flex, Heading, IconButton } from '@chakra-ui/react';
 import { MdLibraryAdd } from 'react-icons/md';
 import { ReduxOperation } from '../types';
 import { TASK } from '../redux/_keys';
@@ -18,6 +18,8 @@ export const Tasks: React.FC<TasksProps> = () => {
 
   const dispatch = (operation: ReduxOperation) =>
     pipe(action(TASK, operation), dHook);
+
+  const addNew = () => dispatch(DuxOp.add)({});
   return (
     <>
       <Flex width="100%">
@@ -54,11 +56,16 @@ export const Tasks: React.FC<TasksProps> = () => {
           {tasks.map((task: Task) => (
             <TaskItem key={task.id} task={task} />
           ))}
-          <Icon
+          <IconButton
+            _hover={{ cursor: 'pointer' }}
+            aria-label="Add new task"
             as={MdLibraryAdd}
-            margin="1rem"
+            bg="transparent"
             boxSize={9}
-            onClick={dispatch(DuxOp.add)}
+            margin="1rem"
+            onClick={addNew}
+            onKeyPress={({ key }) => key === 'Enter' && addNew()}
+            tabIndex={0}
           />
         </Box>
         <Divider orientation="vertical" />

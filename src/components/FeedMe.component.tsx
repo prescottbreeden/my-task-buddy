@@ -14,11 +14,12 @@ import {
 import { HiOutlineLightBulb } from 'react-icons/hi';
 
 interface FeedMeProps {}
-export const FeedMe: React.FC<FeedMeProps> = (props) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+export const FeedMe: React.FC<FeedMeProps> = () => {
+  const { isOpen, onOpen, onClose, onToggle } = useDisclosure();
   return (
     <>
       <IconButton
+        tabIndex={0}
         _hover={{ cursor: 'pointer' }}
         aria-label="Color Mode"
         as={HiOutlineLightBulb}
@@ -27,6 +28,7 @@ export const FeedMe: React.FC<FeedMeProps> = (props) => {
         borderRadius="5px"
         padding=".4rem"
         onClick={onOpen}
+        onKeyPress={({ key }) => key === 'Enter' && onToggle()}
         mr="1rem"
       >
         Open Modal
@@ -40,9 +42,9 @@ export const FeedMe: React.FC<FeedMeProps> = (props) => {
           <ModalBody pb="3rem">
             <Box textAlign="center" fontSize="lg">
               <Text>There are only two hard things in programming:</Text>
-              <Text>Cache Invalidation,
-              Naming Stuff,
-              and Off-By-One Errors.</Text>
+              <Text>
+                Cache Invalidation, Naming Stuff, and Off-By-One Errors.
+              </Text>
             </Box>
           </ModalBody>
         </ModalContent>
@@ -50,4 +52,3 @@ export const FeedMe: React.FC<FeedMeProps> = (props) => {
     </>
   );
 };
-

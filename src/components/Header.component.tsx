@@ -8,8 +8,8 @@ import {
   useColorMode,
 } from '@chakra-ui/react';
 import { SunIcon, MoonIcon } from '@chakra-ui/icons';
-import {Settings} from './Settings.component';
-import {FeedMe} from './FeedMe.component';
+import { Settings } from './Settings.component';
+import { FeedMe } from './FeedMe.component';
 
 interface HeaderProps {}
 export const Header: React.FC<HeaderProps> = () => {
@@ -27,6 +27,7 @@ export const Header: React.FC<HeaderProps> = () => {
         <Box>
           <FeedMe />
           <IconButton
+            tabIndex={0}
             _hover={{ cursor: 'pointer' }}
             aria-label="Color Mode"
             as={colorMode === 'light' ? SunIcon : MoonIcon}

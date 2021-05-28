@@ -6,6 +6,7 @@ import {
   EditablePreview,
   Flex,
   Icon,
+  IconButton,
   Text,
 } from '@chakra-ui/react';
 import { DAY, HOUR, MINUTE, TableStyles } from '../contants';
@@ -39,10 +40,10 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
   const isCurrentTask = useSelector(
     pipe(path([APP, 'currentTask']), equals(task.id))
   );
+  const color = task.isActive ? 'orange.500' : isCurrentTask ? 'green.500' : '';
 
   // formatTime :: number -> string
   const formatTime = ({ isActive, accumulatedTime: t }: Task) => {
-    const color = isActive ? 'orange.500' : isCurrentTask ? 'green.500' : '';
     const days = Math.floor(t / DAY);
     const hours = Math.floor((t % DAY) / HOUR);
     const minutes = Math.floor((t % HOUR) / MINUTE);
@@ -118,36 +119,33 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
           </Editable>
         </Box>
         <Flex
-          justifyContent="space-around"
           alignItems="center"
+          justifyContent="space-around"
           marginRight="2rem"
           width={TableStyles.col2}
         >
           <Flex
-            mr="1rem"
-            width="100%"
             fontSize="xl"
             justifyContent="space-around"
+            mr="1rem"
+            width="100%"
           >
             {formatTime(task)}
           </Flex>
           {!task.completed && (
             <>
-              {task.isActive ? (
-                <Icon
-                  color="orange"
-                  as={ImPause}
-                  boxSize={6}
-                  onClick={toggleActive}
-                />
-              ) : (
-                <Icon
-                  color={isCurrentTask ? 'green.500' : ''}
-                  as={ImPlay2}
-                  boxSize={6}
-                  onClick={toggleActive}
-                />
-              )}
+              <IconButton
+                _hover={{ cursor: 'pointer' }}
+                aria-label="Pause Timer"
+                as={task.isActive ? ImPause : ImPlay2}
+                bg="transparent"
+                boxSize={8}
+                color={color}
+                onClick={toggleActive}
+                onKeyPress={({ key }) => key === 'Enter' && toggleActive()}
+                py={1}
+                tabIndex={0}
+              />
             </>
           )}
         </Flex>
@@ -157,15 +155,27 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
           justifyContent="space-around"
           alignItems="center"
         >
-          {task.completed ? (
-            <Icon as={ImCheckboxChecked} boxSize={5} />
-          ) : (
-            <Icon as={ImCheckboxUnchecked} boxSize={5} />
-          )}
-          <Icon
-            as={IoMdTrash}
+          <IconButton
+            aria-label="Complete"
+            as={task.completed ? ImCheckboxChecked : ImCheckboxUnchecked}
+            bg="transparent"
             boxSize={7}
+            onClick={toggleActive}
+            onKeyPress={({ key }) => key === 'Enter' && toggleActive()}
+            py={1}
+            tabIndex={0}
+          />
+          <IconButton
+            aria-label="Delete"
+            as={IoMdTrash}
+            bg="transparent"
+            boxSize={8}
             onClick={() => dispatchTask(DuxOp.delete)(task)}
+            onKeyPress={({ key }) =>
+              key === 'Enter' && dispatchTask(DuxOp.delete)(task)
+            }
+            py={1}
+            tabIndex={0}
           />
         </Flex>
       </Flex>
