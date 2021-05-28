@@ -6,18 +6,16 @@ export const Preferences: React.FC<User> = (user: User) => {
   return (
     <>
       <Box mb="1rem">
-        <Text>
-          Options
-        </Text>
+        <Text>Upload Template Format</Text>
         <Divider mb=".5rem" />
-        <Checkbox>
-          DevOps
-        </Checkbox>
+        <Stack>
+          <Checkbox>DevOps</Checkbox>
+          <Checkbox>Jira</Checkbox>
+          <Checkbox>Asana</Checkbox>
+        </Stack>
       </Box>
       <Box mb="1rem">
-        <Text>
-          Filters
-        </Text>
+        <Text>Filters</Text>
         <Divider mb=".5rem" />
         <Stack>
           <Checkbox isChecked={true}>Task</Checkbox>
@@ -26,9 +24,7 @@ export const Preferences: React.FC<User> = (user: User) => {
         </Stack>
       </Box>
       <Box mb="1rem">
-        <Text>
-          Sort By
-        </Text>
+        <Text>Sort By</Text>
         <Divider mb=".5rem" />
         <Stack>
           <Checkbox isChecked={false}>Title A-Z</Checkbox>
@@ -42,4 +38,3 @@ export const Preferences: React.FC<User> = (user: User) => {
     </>
   );
 };
-

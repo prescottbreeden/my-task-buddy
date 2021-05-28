@@ -5,7 +5,6 @@ import {
   EditableInput,
   EditablePreview,
   Flex,
-  Icon,
   IconButton,
   Text,
 } from '@chakra-ui/react';
@@ -20,27 +19,61 @@ import {
 import { Task } from '../types/Task.type';
 import { useDispatch, useSelector } from 'react-redux';
 import { APP, TASK } from '../redux/_keys';
-import { defaultTo, pipe } from 'fp-tools';
+import { add, defaultTo, pipe, subtract } from 'fp-tools';
 import { action } from '../utilities/redux.utils';
 import { ReduxOperation } from '../types';
 import { DuxOp } from '../types/ReduxOperation.enum';
-import { equals, path } from 'ramda';
+import { equals, mergeRight, path } from 'ramda';
 
 interface TaskItemProps {
   task: Task;
 }
 export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
+  // [Dependencies]
   const dispatch = useDispatch();
+
+  // [Local State]
+  const [session, setSession] = React.useState<number>(0);
+
+  // [Redux State]
+  const isCurrentTask: boolean = useSelector(
+    pipe(path([APP, 'currentTask']), equals(task.id))
+  );
+
+  const color: string = task.isActive
+    ? 'orange.500'
+    : isCurrentTask
+    ? 'green.500'
+    : '';
+
+  // dispatchTask :: string -> object -> void
   const dispatchTask = (operation: ReduxOperation) =>
-    pipe(action(TASK, operation), dispatch);
+    pipe(mergeRight(task), action(TASK, operation), dispatch);
+
+  // dispatchApp :: string -> object -> void
   const dispatchApp = (operation: ReduxOperation) =>
     pipe(action(APP, operation), dispatch);
 
-  const [session, setSession] = React.useState<number>(0);
-  const isCurrentTask = useSelector(
-    pipe(path([APP, 'currentTask']), equals(task.id))
+  // getElapsed :: number -> number
+  const getElapsed = pipe(
+    subtract(new Date().getTime()),
+    add(task.accumulatedTime)
   );
-  const color = task.isActive ? 'orange.500' : isCurrentTask ? 'green.500' : '';
+
+  const toggleActive = () => {
+    if (!task.isActive) {
+      setSession(new Date().getTime());
+      dispatchTask('[UPDATE]')({
+        isActive: !task.isActive,
+        startedDate: defaultTo(task.startedDate, new Date()),
+      });
+    } else {
+      dispatchTask('[UPDATE]')({
+        accumulatedTime: getElapsed(session),
+        isActive: !task.isActive,
+      });
+    }
+  };
 
   // formatTime :: number -> string
   const formatTime = ({ isActive, accumulatedTime: t }: Task) => {
@@ -62,28 +95,6 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
     );
   };
 
-  const getElapsed = () => {
-    const now = new Date().getTime();
-    return now - session + task.accumulatedTime;
-  };
-  const toggleActive = () => {
-    const started = defaultTo(task.startedDate, new Date());
-    if (!task.isActive) {
-      setSession(new Date().getTime());
-      dispatchTask('[UPDATE]')({
-        id: task.id,
-        isActive: !task.isActive,
-        startedDate: started,
-      });
-    } else {
-      dispatchTask('[UPDATE]')({
-        id: task.id,
-        accumulatedTime: getElapsed(),
-        isActive: !task.isActive,
-      });
-    }
-  };
-
   return (
     <>
       <Flex
@@ -99,7 +110,6 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
               defaultValue={task.name}
               onBlur={({ target }) =>
                 dispatchTask('[UPDATE]')({
-                  id: task.id,
                   name: target.value,
                 })
               }
@@ -111,7 +121,6 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
               defaultValue={task.description}
               onBlur={({ target }) =>
                 dispatchTask('[UPDATE]')({
-                  id: task.id,
                   description: target.value,
                 })
               }
