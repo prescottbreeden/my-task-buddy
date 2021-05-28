@@ -16,6 +16,7 @@
     "@types/ramda": "^0.27.40",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
+    "cross-env": "^7.0.3",
     "fp-tools": "^2.0.1",
     "framer-motion": "^4",
     "ramda": "^0.27.1",
@@ -29,7 +30,7 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "cross-env NODE_ENV=development react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

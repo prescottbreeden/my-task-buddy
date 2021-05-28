@@ -1,8 +1,9 @@
 import { append, cond, join, path } from 'ramda';
 import { equals, pipe, prop } from 'fp-tools';
 import { curry } from 'fp-tools';
-import { ReduxOperation } from './types';
-import { DuxOp } from './types/ReduxOperation.enum';
+import { ReduxOperation } from '../types';
+import { DuxOp } from '../types/ReduxOperation.enum';
+import { value } from './general.utils';
 
 const REDUX_SEP = ' 🚀 ';
 
@@ -15,18 +16,23 @@ export const action = curry(
 );
 
 // actionType :: string -> object -> boolean
-export const actionType = (actionType: string) =>
+const actionType = (actionType: string) =>
   pipe(path(['action', 'type']), equals(actionType));
 
 // matches :: [string] -> boolean
-export const actionMatches = pipe(join(REDUX_SEP), actionType);
+const actionMatches = pipe(join(REDUX_SEP), actionType);
 
 // add_new :: a -> object -> [a]
 const _addNew = (item: any) => pipe(prop('state'), append(item));
 
 // update_item :: object -> [a]
-const _updateItem = ({ action, state }: any) =>
-  state.map((s: any) => (s.id === action.payload.id ? action.payload : s));
+const _updateItem = ({ action, state }: any) => {
+  return Array.isArray(state)
+    ? state.map((s: any) =>
+        s.id === action.payload.id ? { ...s, ...action.payload } : s
+      )
+    : { ...state, ...action.payload };
+};
 
 // delete_item :: object -> [a]
 const _deleteItem = ({ action, state }: any) =>
@@ -39,25 +45,15 @@ export const reducerCrud = {
   update: _updateItem,
 };
 
-export const createCollectionReducer = (key: string, empty: any) => (
-  state = [empty()],
+export const createReducer = (key: string, empty: any) => (
+  state = [value(empty)],
   action: any
 ) => {
   return cond([
-    [actionMatches([key, DuxOp.add]), reducerCrud.add(empty())],
+    [actionMatches([key, DuxOp.add]), reducerCrud.add(value(empty))],
     [actionMatches([key, DuxOp.delete]), reducerCrud.delete],
     [actionMatches([key, DuxOp.set]), reducerCrud.set],
     [actionMatches([key, DuxOp.update]), reducerCrud.update],
-    [() => true, prop('state')],
-  ])({ action, state });
-};
-
-export const createReducer = (key: string, initialState: any) => (
-  state = initialState,
-  action: any
-) => {
-  return cond([
-    [actionMatches([key, DuxOp.set]), reducerCrud.set],
     [() => true, prop('state')],
   ])({ action, state });
 };

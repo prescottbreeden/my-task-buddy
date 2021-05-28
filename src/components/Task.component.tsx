@@ -17,77 +17,141 @@ import {
   ImPlay2,
 } from 'react-icons/im';
 import { Task } from '../types/Task.type';
-import { useDispatch } from 'react-redux';
-import { TASK } from '../redux/_keys';
-import { pipe } from 'fp-tools';
-import { action } from '../utilities';
+import { useDispatch, useSelector } from 'react-redux';
+import { APP, TASK } from '../redux/_keys';
+import { defaultTo, pipe } from 'fp-tools';
+import { action } from '../utilities/redux.utils';
 import { ReduxOperation } from '../types';
 import { DuxOp } from '../types/ReduxOperation.enum';
+import { equals, path } from 'ramda';
 
 interface TaskItemProps {
   task: Task;
 }
 export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
-  const dHook = useDispatch();
-  const dispatch = (operation: ReduxOperation) =>
-    pipe(action(TASK, operation), dHook);
+  const dispatch = useDispatch();
+  const dispatchTask = (operation: ReduxOperation) =>
+    pipe(action(TASK, operation), dispatch);
+  const dispatchApp = (operation: ReduxOperation) =>
+    pipe(action(APP, operation), dispatch);
+
+  const [session, setSession] = React.useState<number>(0);
+  const isCurrentTask = useSelector(
+    pipe(path([APP, 'currentTask']), equals(task.id))
+  );
 
   // formatTime :: number -> string
-  const formatTime = ({ accumulatedTime: t }: Task) => {
+  const formatTime = ({ isActive, accumulatedTime: t }: Task) => {
+    const color = isActive ? 'orange.500' : isCurrentTask ? 'green.500' : '';
     const days = Math.floor(t / DAY);
     const hours = Math.floor((t % DAY) / HOUR);
     const minutes = Math.floor((t % HOUR) / MINUTE);
-    return `${days}d : ${hours}h : ${minutes}m`;
+    return (
+      <>
+        <Text>{days}d</Text>
+        <Text color={color} className={isActive ? 'blink' : ''}>
+          :
+        </Text>
+        <Text>{hours}h</Text>
+        <Text color={color} className={isActive ? 'blink' : ''}>
+          :
+        </Text>
+        <Text>{minutes}m</Text>
+      </>
+    );
   };
 
-  const toggleActive = () => null;
-  const updateCurrentTask = () => null;
+  const getElapsed = () => {
+    const now = new Date().getTime();
+    return now - session + task.accumulatedTime;
+  };
+  const toggleActive = () => {
+    const started = defaultTo(task.startedDate, new Date());
+    if (!task.isActive) {
+      setSession(new Date().getTime());
+      dispatchTask('[UPDATE]')({
+        id: task.id,
+        isActive: !task.isActive,
+        startedDate: started,
+      });
+    } else {
+      dispatchTask('[UPDATE]')({
+        id: task.id,
+        accumulatedTime: getElapsed(),
+        isActive: !task.isActive,
+      });
+    }
+  };
 
   return (
     <>
       <Flex
         p="1rem"
-        border="1px solid transparent"
-        onClick={updateCurrentTask}
+        border={isCurrentTask ? '1px solid steelblue' : '1px solid transparent'}
+        onClick={() => dispatchApp('[SET]')({ currentTask: task.id })}
         _hover={{ border: '1px solid steelblue' }}
-        // style={isCurrentTask() ? { border: '.1rem solid steelblue' } : {}}
       >
-        <Box
-          width={TableStyles.col1}
-          border="1px dashed red"
-          marginRight="2rem"
-        >
+        <Box width={TableStyles.col1} marginRight="2rem">
           <Editable fontSize="xl" defaultValue="Title goes here">
-            <EditablePreview />
-            <EditableInput />
+            <EditablePreview defaultValue={task.name} />
+            <EditableInput
+              defaultValue={task.name}
+              onBlur={({ target }) =>
+                dispatchTask('[UPDATE]')({
+                  id: task.id,
+                  name: target.value,
+                })
+              }
+            />
           </Editable>
           <Editable defaultValue="Description goes here">
-            <EditablePreview />
-            <EditableInput />
+            <EditablePreview defaultValue={task.description} />
+            <EditableInput
+              defaultValue={task.description}
+              onBlur={({ target }) =>
+                dispatchTask('[UPDATE]')({
+                  id: task.id,
+                  description: target.value,
+                })
+              }
+            />
           </Editable>
         </Box>
         <Flex
           justifyContent="space-around"
           alignItems="center"
           marginRight="2rem"
-          border="1px dashed green"
           width={TableStyles.col2}
         >
-          <Text as="p" fontSize="xl" border="1px dashed yellow">
+          <Flex
+            mr="1rem"
+            width="100%"
+            fontSize="xl"
+            justifyContent="space-around"
+          >
             {formatTime(task)}
-          </Text>
+          </Flex>
           {!task.completed && (
             <>
               {task.isActive ? (
-                <Icon as={ImPause} boxSize={6} onClick={toggleActive} />
+                <Icon
+                  color="orange"
+                  as={ImPause}
+                  boxSize={6}
+                  onClick={toggleActive}
+                />
               ) : (
-                <Icon as={ImPlay2} boxSize={6} onClick={toggleActive} />
+                <Icon
+                  color={isCurrentTask ? 'green.500' : ''}
+                  as={ImPlay2}
+                  boxSize={6}
+                  onClick={toggleActive}
+                />
               )}
             </>
           )}
         </Flex>
         <Flex
-          border="1px dashed tomato"
           marginRight="2rem"
           width={TableStyles.col3}
           justifyContent="space-around"
@@ -101,7 +165,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
           <Icon
             as={IoMdTrash}
             boxSize={7}
-            onClick={() => dispatch(DuxOp.delete)(task)}
+            onClick={() => dispatchTask(DuxOp.delete)(task)}
           />
         </Flex>
       </Flex>

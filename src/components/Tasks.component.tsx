@@ -6,7 +6,7 @@ import { TASK } from '../redux/_keys';
 import { TableStyles } from '../contants';
 import { Task } from '../types/Task.type';
 import { TaskItem } from './Task.component';
-import { action } from '../utilities';
+import { action } from '../utilities/redux.utils';
 import { pipe, prop } from 'fp-tools';
 import { useDispatch, useSelector } from 'react-redux';
 import { DuxOp } from '../types/ReduxOperation.enum';
@@ -21,7 +21,7 @@ export const Tasks: React.FC<TasksProps> = () => {
   return (
     <>
       <Flex width="100%">
-        <Box flexGrow={1} height="calc(100vh - 8.1rem)">
+        <Box flexGrow={1} height="calc(100vh - 8.1rem)" overflow="auto">
           <Flex p="1rem" height="4rem">
             <Heading
               as="h3"
