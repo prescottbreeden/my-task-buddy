@@ -9,7 +9,6 @@ import {
 } from '@chakra-ui/react';
 import { SunIcon, MoonIcon } from '@chakra-ui/icons';
 import { Settings } from './Settings.component';
-import { FeedMe } from './FeedMe.component';
 import { FiUpload } from 'react-icons/fi';
 import { useDispatch } from 'react-redux';
 import { action } from '../utilities/redux.utils';
@@ -47,7 +46,6 @@ export const Header: React.FC<HeaderProps> = () => {
             }
             tabIndex={0}
           />
-          <FeedMe />
           <IconButton
             aria-label="Change Color Mode"
             bg="transparent"

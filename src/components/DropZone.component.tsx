@@ -43,9 +43,9 @@ export const DropZone: React.FC<any> = ({ children }) => {
 
   React.useEffect(() => {
     if (acceptedFiles.length > 0) {
-      updateApp({ fileUpload: true });
+      !fileUpload && updateApp({ fileUpload: true });
     }
-  }, [acceptedFiles, updateApp]);
+  }, [acceptedFiles]); // eslint-disable-line
 
   React.useEffect(() => {
     if (fileUpload) {
@@ -84,15 +84,19 @@ export const DropZone: React.FC<any> = ({ children }) => {
           <ModalHeader>CSV File Upload</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb="3rem">
-            <Heading as="h3" fontSize="lg">
+            <Heading as="h3" fontSize="lg" mb=".5rem">
               Selected File(s)
             </Heading>
-            <Table variant="simple">
-              <TableCaption>Files Selected for Upload</TableCaption>
+            <Table variant="unstyled">
+              <TableCaption>
+                Drag and Drop Files or Select Manually
+              </TableCaption>
               <Thead>
-                <Tr>
+                <Tr borderY="1px solid grey">
                   <Th>File Name</Th>
-                  <Th textAlign="right">Size</Th>
+                  <Th width="7rem" textAlign="right">
+                    Size
+                  </Th>
                   <Th textAlign="center">Remove</Th>
                 </Tr>
               </Thead>
