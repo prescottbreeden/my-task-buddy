@@ -1,9 +1,12 @@
 import React from 'react';
 import { DeleteIcon } from '@chakra-ui/icons';
 import {
+  Box,
   Button,
   Center,
+  Divider,
   Heading,
+  HStack,
   IconButton,
   Modal,
   ModalBody,
@@ -12,10 +15,12 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Radio,
+  RadioGroup,
   Table,
-  TableCaption,
   Tbody,
   Td,
+  Text,
   Th,
   Thead,
   Tr,
@@ -36,6 +41,7 @@ export const DropZone: React.FC<any> = ({ children }) => {
     noClick: true,
     noKeyboard: true,
     multiple: true,
+    accept: 'text/csv',
   });
 
   const fileUpload = useSelector(path([APP, 'fileUpload']));
@@ -88,9 +94,6 @@ export const DropZone: React.FC<any> = ({ children }) => {
               Selected File(s)
             </Heading>
             <Table variant="unstyled">
-              <TableCaption>
-                Drag and Drop Files or Select Manually
-              </TableCaption>
               <Thead>
                 <Tr borderY="1px solid grey">
                   <Th>File Name</Th>
@@ -105,9 +108,30 @@ export const DropZone: React.FC<any> = ({ children }) => {
             <Center mt="1rem">
               <Button onClick={open}>Open File Dialog</Button>
             </Center>
+            <Center mt="2rem">
+              <Box>
+                <Text>Upload Template Format</Text>
+                <Divider mb=".5rem" />
+                <RadioGroup defaultValue="1">
+                  <HStack spacing={5} direction="row">
+                    <Radio colorScheme="green" value="1">
+                      DevOps
+                    </Radio>
+                    <Radio colorScheme="green" value="2">
+                      Jira
+                    </Radio>
+                    <Radio colorScheme="green" value="3">
+                      Asana
+                    </Radio>
+                  </HStack>
+                </RadioGroup>
+              </Box>
+            </Center>
           </ModalBody>
           <ModalFooter>
-            <Button mr="1rem">Cancel</Button>
+            <Button mr="1rem" onClick={() => updateApp({ fileUpload: false })}>
+              Cancel
+            </Button>
             <Button>Upload Files</Button>
           </ModalFooter>
         </ModalContent>
