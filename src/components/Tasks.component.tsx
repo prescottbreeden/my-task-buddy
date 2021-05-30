@@ -1,10 +1,9 @@
 import React from 'react';
 import { Box, Divider, Flex, Heading, IconButton } from '@chakra-ui/react';
 import { MdLibraryAdd } from 'react-icons/md';
-import { ReduxOperation } from '../types';
 import { TASK } from '../redux/_keys';
 import { TableStyles } from '../contants';
-import { Task } from '../types/Task.type';
+import { emptyTask, Task } from '../types/Task.type';
 import { TaskItem } from './Task.component';
 import { action } from '../utilities/redux.utils';
 import { pipe, prop } from 'fp-tools';
@@ -13,13 +12,10 @@ import { DuxOp } from '../types/ReduxOperation.enum';
 
 interface TasksProps {}
 export const Tasks: React.FC<TasksProps> = () => {
-  const dHook = useDispatch();
+  const dispatch = useDispatch();
   const tasks: Task[] = useSelector(prop(TASK));
 
-  const dispatch = (operation: ReduxOperation) =>
-    pipe(action(TASK, operation), dHook);
-
-  const addNew = () => dispatch(DuxOp.add)({});
+  const dispatchTask = pipe(action(TASK, DuxOp.add), dispatch);
   return (
     <>
       <Flex width="100%">
@@ -57,14 +53,12 @@ export const Tasks: React.FC<TasksProps> = () => {
             <TaskItem key={task.id} task={task} />
           ))}
           <IconButton
-            _hover={{ cursor: 'pointer' }}
             aria-label="Add new task"
-            as={MdLibraryAdd}
+            icon={<MdLibraryAdd />}
             bg="transparent"
-            boxSize={9}
+            fontSize="2rem"
             margin="1rem"
-            onClick={addNew}
-            onKeyPress={({ key }) => key === 'Enter' && addNew()}
+            onClick={() => dispatchTask(emptyTask())}
             tabIndex={0}
           />
         </Box>

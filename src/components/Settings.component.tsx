@@ -30,16 +30,14 @@ export const Settings: React.FC<SettingsProps> = () => {
   return (
     <>
       <IconButton
-        tabIndex={0}
-        _hover={{ cursor: 'pointer' }}
-        aria-label="Color Mode"
-        as={SettingsIcon}
+        aria-label="Open Settings"
         bg="transparent"
         border="1px solid #333"
         borderRadius="5px"
+        mr="1rem"
+        tabIndex={0}
+        icon={<SettingsIcon />}
         onClick={onOpen}
-        onKeyPress={({ key }) => key === 'Enter' && onToggle()}
-        padding=".6rem"
         ref={settingsBtn}
       />
       <Drawer

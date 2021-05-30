@@ -10,10 +10,16 @@ import {
 import { SunIcon, MoonIcon } from '@chakra-ui/icons';
 import { Settings } from './Settings.component';
 import { FeedMe } from './FeedMe.component';
+import { FiUpload } from 'react-icons/fi';
+import { useDispatch } from 'react-redux';
+import { action } from '../utilities/redux.utils';
+import { APP } from '../redux/_keys';
+import { DuxOp } from '../types/ReduxOperation.enum';
 
 interface HeaderProps {}
 export const Header: React.FC<HeaderProps> = () => {
   const { colorMode, toggleColorMode } = useColorMode();
+  const dispatch = useDispatch();
 
   return (
     <>
@@ -25,18 +31,32 @@ export const Header: React.FC<HeaderProps> = () => {
           </Text>
         </Box>
         <Box>
-          <FeedMe />
           <IconButton
-            tabIndex={0}
-            _hover={{ cursor: 'pointer' }}
-            aria-label="Color Mode"
-            as={colorMode === 'light' ? SunIcon : MoonIcon}
+            aria-label="Upload File"
             bg="transparent"
             border="1px solid #333"
             borderRadius="5px"
+            icon={<FiUpload />}
+            mr="1rem"
+            onClick={() =>
+              dispatch(
+                action(APP, DuxOp.update, {
+                  fileUpload: true,
+                })
+              )
+            }
+            tabIndex={0}
+          />
+          <FeedMe />
+          <IconButton
+            aria-label="Change Color Mode"
+            bg="transparent"
+            border="1px solid #333"
+            borderRadius="5px"
+            icon={colorMode === 'light' ? <SunIcon /> : <MoonIcon />}
             mr="1rem"
             onClick={toggleColorMode}
-            padding=".6rem"
+            tabIndex={0}
           />
           <Settings />
         </Box>

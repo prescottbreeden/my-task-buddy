@@ -4,8 +4,8 @@ import { createReducer } from '../utilities/redux.utils';
 import { APP, TASK, USER } from './_keys';
 
 const rootReducer = combineReducers({
-  [APP]: createReducer(APP, { currentTask: '' }),
-  [TASK]: createReducer(TASK, emptyTask),
+  [APP]: createReducer(APP, { currentTask: '', fileUpload: false }),
+  [TASK]: createReducer(TASK, [emptyTask()]),
   [USER]: createReducer(USER, { name: '' }),
 });
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { APP, TASK } from '../redux/_keys';
 import {
   Box,
   Editable,
@@ -9,21 +10,19 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { DAY, HOUR, MINUTE, TableStyles } from '../contants';
-import { IoMdTrash } from 'react-icons/io';
+import { DuxOp } from '../types/ReduxOperation.enum';
 import {
   ImCheckboxChecked,
   ImCheckboxUnchecked,
   ImPause,
   ImPlay2,
 } from 'react-icons/im';
+import { IoMdTrash } from 'react-icons/io';
 import { Task } from '../types/Task.type';
-import { useDispatch, useSelector } from 'react-redux';
-import { APP, TASK } from '../redux/_keys';
-import { add, defaultTo, pipe, subtract } from 'fp-tools';
 import { action } from '../utilities/redux.utils';
-import { ReduxOperation } from '../types';
-import { DuxOp } from '../types/ReduxOperation.enum';
+import { defaultTo, pipe } from 'fp-tools';
 import { equals, mergeRight, path } from 'ramda';
+import { useDispatch, useSelector } from 'react-redux';
 
 interface TaskItemProps {
   task: Task;
@@ -46,30 +45,30 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
     ? 'green.500'
     : '';
 
-  // dispatchTask :: string -> object -> void
-  const dispatchTask = (operation: ReduxOperation) =>
-    pipe(mergeRight(task), action(TASK, operation), dispatch);
+  // updateTask :: object -> void
+  const updateTask = pipe(
+    mergeRight({ id: task.id }),
+    action(TASK, DuxOp.update),
+    dispatch
+  );
 
-  // dispatchApp :: string -> object -> void
-  const dispatchApp = (operation: ReduxOperation) =>
-    pipe(action(APP, operation), dispatch);
+  // updateApp :: object -> void
+  const updateApp = pipe(action(APP, DuxOp.update), dispatch);
 
   // getElapsed :: number -> number
-  const getElapsed = pipe(
-    subtract(new Date().getTime()),
-    add(task.accumulatedTime)
-  );
+  const getElapsed = () =>
+    new Date().getTime() - session + task.accumulatedTime;
 
   const toggleActive = () => {
     if (!task.isActive) {
       setSession(new Date().getTime());
-      dispatchTask('[UPDATE]')({
+      updateTask({
         isActive: !task.isActive,
         startedDate: defaultTo(task.startedDate, new Date()),
       });
     } else {
-      dispatchTask('[UPDATE]')({
-        accumulatedTime: getElapsed(session),
+      updateTask({
+        accumulatedTime: getElapsed(),
         isActive: !task.isActive,
       });
     }
@@ -100,30 +99,20 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
       <Flex
         p="1rem"
         border={isCurrentTask ? '1px solid steelblue' : '1px solid transparent'}
-        onClick={() => dispatchApp('[SET]')({ currentTask: task.id })}
+        onClick={() => !isCurrentTask && updateApp({ currentTask: task.id })}
         _hover={{ border: '1px solid steelblue' }}
       >
         <Box width={TableStyles.col1} marginRight="2rem">
           <Editable fontSize="xl" defaultValue="Title goes here">
             <EditablePreview defaultValue={task.name} />
             <EditableInput
-              defaultValue={task.name}
-              onBlur={({ target }) =>
-                dispatchTask('[UPDATE]')({
-                  name: target.value,
-                })
-              }
+              onBlur={({ target }) => updateTask({ name: target.value })}
             />
           </Editable>
           <Editable defaultValue="Description goes here">
             <EditablePreview defaultValue={task.description} />
             <EditableInput
-              defaultValue={task.description}
-              onBlur={({ target }) =>
-                dispatchTask('[UPDATE]')({
-                  description: target.value,
-                })
-              }
+              onBlur={({ target }) => updateTask({ description: target.value })}
             />
           </Editable>
         </Box>
@@ -144,15 +133,14 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
           {!task.completed && (
             <>
               <IconButton
-                _hover={{ cursor: 'pointer' }}
-                aria-label="Pause Timer"
-                as={task.isActive ? ImPause : ImPlay2}
+                aria-label={
+                  task.isActive ? 'Pause Task Timer' : 'Start Task Timer'
+                }
+                icon={task.isActive ? <ImPause /> : <ImPlay2 />}
                 bg="transparent"
-                boxSize={8}
+                fontSize="2rem"
                 color={color}
                 onClick={toggleActive}
-                onKeyPress={({ key }) => key === 'Enter' && toggleActive()}
-                py={1}
                 tabIndex={0}
               />
             </>
@@ -165,25 +153,20 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
           alignItems="center"
         >
           <IconButton
-            aria-label="Complete"
-            as={task.completed ? ImCheckboxChecked : ImCheckboxUnchecked}
+            aria-label="Complete Task"
+            icon={
+              task.completed ? <ImCheckboxChecked /> : <ImCheckboxUnchecked />
+            }
             bg="transparent"
-            boxSize={7}
-            onClick={toggleActive}
-            onKeyPress={({ key }) => key === 'Enter' && toggleActive()}
-            py={1}
+            fontSize="1.4rem"
             tabIndex={0}
           />
           <IconButton
-            aria-label="Delete"
-            as={IoMdTrash}
+            aria-label="Delete Task"
+            icon={<IoMdTrash />}
             bg="transparent"
-            boxSize={8}
-            onClick={() => dispatchTask(DuxOp.delete)(task)}
-            onKeyPress={({ key }) =>
-              key === 'Enter' && dispatchTask(DuxOp.delete)(task)
-            }
-            py={1}
+            fontSize="2rem"
+            onClick={() => dispatch(action(TASK, DuxOp.delete, task))}
             tabIndex={0}
           />
         </Flex>
