@@ -1,17 +1,20 @@
+import '@fontsource/cutive-mono';
 import App from './App';
 import './index.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
-/* import reportWebVitals from './reportWebVitals'; */
 import theme from './theme';
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
-import '@fontsource/cutive-mono';
+import { store } from './redux/_store';
+import { Provider } from 'react-redux';
 
 ReactDOM.render(
   <React.StrictMode>
     <ChakraProvider theme={theme}>
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-      <App />
+      <Provider store={store}>
+        <App />
+      </Provider>
     </ChakraProvider>
   </React.StrictMode>,
   document.getElementById('root')

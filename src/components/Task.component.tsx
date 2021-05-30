@@ -28,22 +28,14 @@ interface TaskItemProps {
   task: Task;
 }
 export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
-  // [Dependencies]
   const dispatch = useDispatch();
 
-  // [Local State]
   const [session, setSession] = React.useState<number>(0);
+  const setNewSession = () => setSession(new Date().getTime());
 
-  // [Redux State]
   const isCurrentTask: boolean = useSelector(
     pipe(path([APP, 'currentTask']), equals(task.id))
   );
-
-  const color: string = task.isActive
-    ? 'orange.500'
-    : isCurrentTask
-    ? 'green.500'
-    : '';
 
   // updateTask :: object -> void
   const updateTask = pipe(
@@ -55,13 +47,12 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
   // updateApp :: object -> void
   const updateApp = pipe(action(APP, DuxOp.update), dispatch);
 
-  // getElapsed :: number -> number
   const getElapsed = () =>
     new Date().getTime() - session + task.accumulatedTime;
 
   const toggleActive = () => {
     if (!task.isActive) {
-      setSession(new Date().getTime());
+      setNewSession();
       updateTask({
         isActive: !task.isActive,
         startedDate: defaultTo(task.startedDate, new Date()),
@@ -74,7 +65,20 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
     }
   };
 
-  // formatTime :: number -> string
+  const toggleComplete = () => {
+    updateTask({
+      accumulatedTime: task.isActive ? getElapsed() : task.accumulatedTime,
+      isActive: false,
+      completed: !task.completed,
+    });
+  };
+
+  const color: string = task.isActive
+    ? 'orange.500'
+    : isCurrentTask
+    ? 'green.500'
+    : '';
+
   const formatTime = ({ isActive, accumulatedTime: t }: Task) => {
     const days = Math.floor(t / DAY);
     const hours = Math.floor((t % DAY) / HOUR);
@@ -97,19 +101,23 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
   return (
     <>
       <Flex
-        p="1rem"
-        border={isCurrentTask ? '1px solid steelblue' : '1px solid transparent'}
-        onClick={() => !isCurrentTask && updateApp({ currentTask: task.id })}
         _hover={{ border: '1px solid steelblue' }}
+        _focus={{ border: '1px solid steelblue' }}
+        border={isCurrentTask ? '1px solid steelblue' : '1px solid transparent'}
+        id={task.id}
+        onClick={() => !isCurrentTask && updateApp({ currentTask: task.id })}
+        onKeyDown={({ key }) => key === 'Enter' && toggleActive()}
+        p="1rem"
+        tabIndex={0}
       >
         <Box width={TableStyles.col1} marginRight="2rem">
-          <Editable fontSize="xl" defaultValue="Title goes here">
+          <Editable fontSize="xl" defaultValue="Enter a Name">
             <EditablePreview defaultValue={task.name} />
             <EditableInput
               onBlur={({ target }) => updateTask({ name: target.value })}
             />
           </Editable>
-          <Editable defaultValue="Description goes here">
+          <Editable defaultValue="Enter a Description">
             <EditablePreview defaultValue={task.description} />
             <EditableInput
               onBlur={({ target }) => updateTask({ description: target.value })}
@@ -136,36 +144,39 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
                 aria-label={
                   task.isActive ? 'Pause Task Timer' : 'Start Task Timer'
                 }
-                icon={task.isActive ? <ImPause /> : <ImPlay2 />}
                 bg="transparent"
-                fontSize="2rem"
                 color={color}
+                fontSize="2rem"
+                icon={task.isActive ? <ImPause /> : <ImPlay2 />}
                 onClick={toggleActive}
+                onKeyDown={() => null}
                 tabIndex={0}
               />
             </>
           )}
         </Flex>
         <Flex
+          alignItems="center"
+          justifyContent="space-around"
           marginRight="2rem"
           width={TableStyles.col3}
-          justifyContent="space-around"
-          alignItems="center"
         >
           <IconButton
             aria-label="Complete Task"
+            bg="transparent"
+            color={task.completed ? color : ''}
+            fontSize="1.4rem"
             icon={
               task.completed ? <ImCheckboxChecked /> : <ImCheckboxUnchecked />
             }
-            bg="transparent"
-            fontSize="1.4rem"
+            onClick={toggleComplete}
             tabIndex={0}
           />
           <IconButton
             aria-label="Delete Task"
-            icon={<IoMdTrash />}
             bg="transparent"
             fontSize="2rem"
+            icon={<IoMdTrash />}
             onClick={() => dispatch(action(TASK, DuxOp.delete, task))}
             tabIndex={0}
           />

@@ -14,8 +14,8 @@ interface TasksProps {}
 export const Tasks: React.FC<TasksProps> = () => {
   const dispatch = useDispatch();
   const tasks: Task[] = useSelector(prop(TASK));
+  const addTask = pipe(action(TASK, DuxOp.add), dispatch);
 
-  const dispatchTask = pipe(action(TASK, DuxOp.add), dispatch);
   return (
     <>
       <Flex width="100%">
@@ -58,7 +58,7 @@ export const Tasks: React.FC<TasksProps> = () => {
             bg="transparent"
             fontSize="2rem"
             margin="1rem"
-            onClick={() => dispatchTask(emptyTask())}
+            onClick={() => addTask(emptyTask())}
             tabIndex={0}
           />
         </Box>
