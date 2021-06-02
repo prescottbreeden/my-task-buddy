@@ -9,6 +9,7 @@ import { action } from '../utilities/redux.utils';
 import { pipe, prop } from 'fp-tools';
 import { useDispatch, useSelector } from 'react-redux';
 import { DuxOp } from '../types/ReduxOperation.enum';
+import { NotePad } from './Notepad.component';
 
 interface TasksProps {}
 export const Tasks: React.FC<TasksProps> = () => {
@@ -64,16 +65,7 @@ export const Tasks: React.FC<TasksProps> = () => {
         </Box>
         <Divider orientation="vertical" />
         <Box width="25%">
-          <Flex p="1rem" height="4rem" width="100%">
-            <Heading
-              as="h3"
-              fontSize="lg"
-              borderBottom="1px solid grey"
-              width="100%"
-            >
-              Notes
-            </Heading>
-          </Flex>
+          <NotePad task={tasks[0]} />
         </Box>
       </Flex>
     </>
